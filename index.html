@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的网盘</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f2f5f9;font-family:微软雅黑;padding:12px}
+.container{max-width:500px;margin:0 auto}
+.header{display:flex;justify-content:space-between;margin-bottom:12px}
+.btn{padding:8px 12px;background:#007bff;color:#fff;border-radius:10px;text-decoration:none}
+.card{background:#fff;border-radius:14px;padding:14px;margin-bottom:12px}
+.folder{font-weight:bold;padding:10px;background:#f8f9fa;border-radius:8px;margin-bottom:8px}
+.item{padding:8px 0;border-bottom:1px solid #eee}
+a{color:#007bff}
+.load{text-align:center;padding:20px}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h2>我的网盘</h2>
+    <a class="btn" href="add.html">➕ 添加</a>
+  </div>
+  <div class="load" id="load">加载中...</div>
+  <div id="list"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const supabaseClient = supabase.createClient(
+  "https://qkrpmoxeqakrwbqndbgg.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFrcnBtb3hlcWFrcndicW5kYnFnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTQwNTAsImV4cCI6MjA5MjUzMDA1MH0.U839r7rZSpC6WpzsvGQx-dum0gacakUsBzyaSSs4XVw"
+);
+
+let folders = [], links = [];
+
+async function load() {
+  let { data: f } = await supabaseClient.from('folders').select('*');
+  let { data: l } = await supabaseClient.from('links').select('*');
+  folders = f || [];
+  links = l || [];
+  document.getElementById('load').style.display = 'none';
+  render();
+}
+
+function render() {
+  let html = '';
+  folders.forEach(f => {
+    html += `<div class="card"><div class="folder">📁 ${f.name}</div>`;
+    links.filter(x => x.folder_id === f.id).forEach(x => {
+      html += `<div class="item"><a href="${x.url}" target="_blank">${x.name}</a></div>`;
+    });
+    html += `</div>`;
+  });
+  document.getElementById('list').innerHTML = html;
+}
+
+load();
+</script>
+</body>
+</html>
